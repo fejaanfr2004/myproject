@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Support\ActivityLogger;
+use App\Notifications\AdminAlertNotification;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -61,12 +62,27 @@ class OrderController extends Controller
 
         // Record activity only when the status actually changes
         if ($oldStatus !== $newStatus) {
-            ActivityLogger::log(
+
+    ActivityLogger::log(
+        'Order Status Updated',
+        "Order {$order->order_number} status changed from {$oldStatus} to {$newStatus}",
+        $order
+    );
+
+    // Notify customer about order status change
+    if ($order->user) {
+        $order->user->notify(
+            new AdminAlertNotification(
                 'Order Status Updated',
-                "Order {$order->order_number} status changed from {$oldStatus} to {$newStatus}",
-                $order
-            );
-        }
+                'Your order ' . $order->order_number .
+                ' status has been changed from ' . ucfirst($oldStatus) .
+                ' to ' . ucfirst($newStatus) . '.',
+                'order_status',
+                url('null')
+            )
+        );
+    }
+}
 
         return redirect()
             ->route('admin.orders.show', $order)
