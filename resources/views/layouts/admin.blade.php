@@ -140,6 +140,15 @@
             padding: 10px 15px;
             border-radius: 9px;
         }
+        .admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 10px 15px;
+    border-radius: 9px;
+}
 
         .avatar {
             width: 38px;
@@ -340,24 +349,50 @@
             <p class="page-subtitle">Your store control center</p>
         </div>
 
-        <div class="admin-profile">
+       <div class="topbar-actions">
 
-            <div class="avatar">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
+    {{-- NOTIFICATION BELL --}}
 
-            <div>
-                <div class="profile-name">
-                    {{ auth()->user()->name }}
-                </div>
+    <a href="{{ route('admin.notifications.index') }}"
+       class="notification-bell"
+       data-admin-link
+       title="Notifications">
 
-                <div class="profile-role">
-                    {{ auth()->user()->getRoleNames()->first() ?? 'USER' }}
-                </div>
-            </div>
+        🔔
 
+        @php
+            $unreadCount = auth()->user()->unreadNotifications()->count();
+        @endphp
+
+        @if($unreadCount > 0)
+            <span class="notification-count">
+                {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+            </span>
+        @endif
+
+    </a>
+
+    {{-- ADMIN PROFILE --}}
+
+    <div class="admin-profile">
+
+        <div class="avatar">
+            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
         </div>
 
+        <div>
+            <div class="profile-name">
+                {{ auth()->user()->name }}
+            </div>
+
+            <div class="profile-role">
+                {{ auth()->user()->getRoleNames()->first() ?? 'USER' }}
+            </div>
+        </div>
+
+    </div>
+
+</div>
     </header>
 
     {{-- DYNAMIC PAGE CONTENT --}}
