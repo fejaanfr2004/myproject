@@ -90,7 +90,22 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 
 });
+// ========================================
+// CUSTOMER NOTIFICATIONS
+// ========================================
 
+Route::middleware('auth')->group(function () {
+
+    Route::get('/notifications', [\App\Http\Controllers\CustomerNotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\CustomerNotificationController::class, 'markAsRead'])
+        ->name('notifications.read');
+
+    Route::post('/notifications/read-all', [\App\Http\Controllers\CustomerNotificationController::class, 'markAllAsRead'])
+        ->name('notifications.read-all');
+
+});
 
 // ========================================
 // LOGOUT

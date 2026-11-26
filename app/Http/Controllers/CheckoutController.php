@@ -134,7 +134,20 @@ class CheckoutController extends Controller
                     'line_total' => $item['line_total'],
                 ]);
 
-                $item['product']->decrement('stock', $item['quantity']);
+               $item['product']->decrement('stock', $item['quantity']);
+
+// Refresh product stock after purchase
+$item['product']->refresh();
+
+// Notify Super Admin when stock reaches 5 or fewer units
+if ($item['product']->stock <= 5 && $item['product']->stock + $item['quantity'] > 5) {
+    AdminNotificationService::send(
+        'Low Stock Alert',
+        'Product "' . $item['product']->name . '" has only ' . $item['product']->stock . ' units remaining after a customer purchase.',
+        'low_stock',
+        route('admin.products.index')
+    );
+}
             }
 
             return $order;

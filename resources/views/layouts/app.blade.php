@@ -100,7 +100,38 @@
             background: #ffe8e8;
             color: #a83232;
         }
+/* CUSTOMER NOTIFICATION BELL */
 
+.customer-notification {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.customer-notification:hover {
+    color: #c9a96e;
+}
+
+.customer-notification-count {
+    position: absolute;
+    top: -10px;
+    right: -12px;
+    background: #dc3545;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
         @media(max-width: 650px) {
             header {
                 justify-content: center;
@@ -132,7 +163,25 @@
         <a href="{{ route('cart.index') }}">
             CART ({{ $cartCount ?? array_sum(array_column(session('cart', []), 'quantity')) }})
         </a>
+@auth
+    <a href="{{ route('notifications.index') }}"
+       class="customer-notification"
+       title="My Notifications">
 
+        🔔
+
+        @php
+            $customerUnreadCount = auth()->user()->unreadNotifications()->count();
+        @endphp
+
+        @if($customerUnreadCount > 0)
+            <span class="customer-notification-count">
+                {{ $customerUnreadCount > 99 ? '99+' : $customerUnreadCount }}
+            </span>
+        @endif
+
+    </a>
+@endauth
         @auth
             @can('view-admin-dashboard')
                 <a href="{{ route('admin.dashboard') }}">ADMIN</a>
