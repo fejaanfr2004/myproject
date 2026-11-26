@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Support\ActivityLogger;
+use App\Support\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +72,15 @@ class ProductController extends Controller
             "Created product: {$product->name}",
             $product
         );
+        // Notify Super Admin if a newly created product has low stock
+if ($product->stock <= 5) {
+    AdminNotificationService::send(
+        'Low Stock Alert',
+        'Product "' . $product->name . '" has only ' . $product->stock . ' units in stock.',
+        'low_stock',
+        route('admin.products.index')
+    );
+}
 
         return redirect()
             ->route('admin.products.index')
@@ -87,7 +97,7 @@ class ProductController extends Controller
 
     // Update product
     public function update(Request $request, Product $product)
-    {
+    {    $oldStock = $product->stock;
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
@@ -131,7 +141,15 @@ class ProductController extends Controller
             "Updated product: {$product->name}",
             $product
         );
-
+          // Notify Super Admin when stock drops to 5 or fewer units
+if ($oldStock > 5 && $product->stock <= 5) {
+    AdminNotificationService::send(
+        'Low Stock Alert',
+        'Product "' . $product->name . '" has only ' . $product->stock . ' units remaining.',
+        'low_stock',
+        route('admin.products.index')
+    );
+}
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Product updated successfully!');

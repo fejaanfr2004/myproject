@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Support\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -35,11 +35,19 @@ class AuthController extends Controller
         ]);
 
         $role = Role::firstOrCreate(['name' => 'Customer']);
-        $user->assignRole($role);
+     $user->assignRole($role);
 
-        Auth::login($user);
+// Notify Super Admin about new customer registration
+AdminNotificationService::send(
+    'New Customer Registered',
+    $user->name . ' has created a new customer account. Email: ' . $user->email,
+    'customer',
+    route('admin.users.index')
+);
 
-        return redirect('/');
+Auth::login($user);
+
+return redirect('/');
     }
 
     public function login(Request $request)
