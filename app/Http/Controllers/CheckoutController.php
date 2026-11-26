@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-
+use App\Support\AdminNotificationService;
 class CheckoutController extends Controller
 {
     // Display checkout page
@@ -141,7 +141,18 @@ class CheckoutController extends Controller
         });
 
         // Clear cart only after the order is successfully saved
-        session()->forget('cart');
+        // Send notification to Super Admin after successful order placement
+AdminNotificationService::send(
+    'New Order Received',
+    'A new order ' . $order->order_number .
+    ' has been placed by ' . $order->customer_name .
+    '. Total amount: ₹' . number_format($order->total, 2),
+    'order',
+    route('admin.orders.show', $order->id)
+);
+
+// Clear cart only after the order is successfully saved
+session()->forget('cart');
 
         return view('checkout.success', compact('order'));
     }

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -108,6 +108,15 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::middleware(['auth', 'can:view-admin-dashboard'])
     ->prefix('admin')
     ->group(function () {
+        // ADMIN NOTIFICATIONS
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('admin.notifications.index');
+
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+    ->name('admin.notifications.read');
+
+Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+    ->name('admin.notifications.read-all');
 
         // ========================================
         // ROLE MANAGEMENT
